@@ -4,6 +4,7 @@ import ImageGallery from './components/ImageGallery';
 import Button from './components/Button';
 import Loader from './components/Loader';
 import Modal from './components/Modal';
+import { getImages } from './services/api.ts';
 import './styles.css';
 
 const App = () => {
@@ -38,12 +39,7 @@ const App = () => {
     setIsLoading(true);
 
     try {
-      const apiKey = '40250355-d0c6ab5be835447af42ca5fe7';
-      const perPage = 12;
-      const apiUrl = `https://pixabay.com/api/?q=${query}&page=${page}&key=${apiKey}&image_type=photo&orientation=horizontal&per_page=${perPage}`;
-
-      const response = await fetch(apiUrl);
-      const data = await response.json();
+      const data = await getImages(query, page);
 
       setImages(prevImages => [...prevImages, ...data.hits]);
     } catch (error) {
@@ -54,8 +50,10 @@ const App = () => {
   }, [query, page]);
 
   useEffect(() => {
+    if (query.trim() === '') return;
+
     fetchImages();
-  }, [fetchImages]);
+  }, [fetchImages, query]);
 
   return (
     <div>
@@ -64,7 +62,7 @@ const App = () => {
       {isLoading && <Loader />}
       {images.length > 0 && !isLoading && (
         <Button
-          className="load-more-button"
+          className="loadMoreButton"
           onClick={handleLoadMore}
           disabled={isLoading}
         >
